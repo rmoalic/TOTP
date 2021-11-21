@@ -39,29 +39,30 @@ class OtpFrame(ttk.Frame):
     def __init__(self, container, otp, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
         self.otp = otp
+        self["style"] = "OTPFrame.TFrame"
         self.thumbnail = ttk.Label(self, text=otp.thumbnail)
-        self.label = ttk.Label(self, text=otp.label)
-        self.otp_code = ttk.Label(self, text="")
-        self.remaining_time_bar = ttk.Progressbar(self, orient=tk.HORIZONTAL, mode="determinate", maximum=self.otp.period)
+        self.label = ttk.Label(self, text=otp.label, wraplength=280)
+        self.otp_code = ttk.Label(self, text="", style="OPT.TLabel")
+        self.remaining_time_bar = ttk.Progressbar(self, orient=tk.HORIZONTAL, mode="determinate", maximum=self.otp.period, style="green.Horizontal.TProgressbar")
 
-        self.thumbnail.grid(row=0, column=0, rowspan=2)
-        self.label.grid(row=0, column=1)
-        self.otp_code.grid(row=1, column=1)
-        self.remaining_time_bar.grid(row=2, column=0, columnspan=2)
+        self.thumbnail.grid(row=0, column=0, rowspan=2, sticky=tk.W)
+        self.label.grid(row=0, column=1, sticky=tk.E)
+        self.otp_code.grid(row=1, column=1, pady=10, sticky=tk.E)
+        self.remaining_time_bar.grid(row=2, column=0, columnspan=2, pady=0)
 
-        self.remaining_time_bar["length"] = 300
+        self.remaining_time_bar["length"] = 370
 
         next_change_in = self.otp.next_change_in()
         self.remaining_time_bar.step(self.otp.period - next_change_in)
         self.remaining_time_bar.start(1000)
-        self.update(next_change_in)
+        self.update()
 
-    def update(self, next_update_offset=0):
+    def update(self):
         opt = self.otp.get_otp()
         leading_zeros_fix = self.otp.digits + (self.otp.digits // 3) - 1
         opt_str = format(opt, "0{},d".format(leading_zeros_fix)).replace(",", " ")
         self.otp_code.configure(text=opt_str)
-        self.after(self.otp.period - next_update_offset, self.update)
+        self.after(self.otp.next_change_in(), self.update)
 
 
 class ScrollableFrame(ttk.Frame):
@@ -78,7 +79,7 @@ class ScrollableFrame(ttk.Frame):
 
 
 def load():
-    with open("test_data.json") as f:
+    with open("otp_data.json") as f:
         secrets = json.load(f)
         return [Otp(s) for s in secrets]
 
@@ -87,15 +88,25 @@ def main():
     otps = load()
 
     fen = tk.Tk()
-    fen.title('TOTP')
-    # fen.geometry('400x300')
+    fen.title("TOTP")
+    fen.geometry("400x390")
+    fen.resizable(False, True)
+
+    tkstyle = ttk.Style(fen)
+
+    tkstyle.layout("OTPFrame.TFrame", [('Frame.border', {'sticky': 'nswe', 'border':1})])
+    print(tkstyle.layout("TLabel"))
+    tkstyle.configure("OTPFrame.TFrame", border=50, bordercolor="red", borderwidth=5)
+    tkstyle.configure("green.Horizontal.TProgressbar", troughcolor ='green', background='white')
+    tkstyle.configure("OPT.TLabel", font=('Helvetica', 18), foreground="green")
 
     frame = ScrollableFrame(fen)
     frame.pack(expand=True, fill=tk.BOTH)
 
     for otp in otps:
         if (otp.type == "TOTP" and otp.algo == "SHA1"):
-            OtpFrame(frame.scrollable_frame, otp).grid()
+            f = OtpFrame(frame.scrollable_frame, otp)
+            f.grid(ipady=8, padx=5)
         else:
             print("OTP not processed {}, this programm only support TOTP with SHA1".format(otp.thumbnail))
 
