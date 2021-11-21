@@ -1,0 +1,54 @@
+[
+  {
+    "secret": "O5RXQ5TDOZRXQ5TXMN3GIZTHOFZXG===",
+    "issuer": "",
+    "label": "GitHub:user123",
+    "digits": 6,
+    "type": "TOTP",
+    "algorithm": "SHA1",
+    "thumbnail": "GitHub",
+    "last_used": 0,
+    "used_frequency": 0,
+    "period": 80,
+    "tags": []
+  },
+  {
+    "secret": "MRYWM43MNRWWG5TKO5WG22TT",
+    "issuer": "",
+    "label": "user123",
+    "digits": 6,
+    "type": "TOTP",
+    "algorithm": "SHA1",
+    "thumbnail": "Facebook",
+    "last_used": 0,
+    "used_frequency": 0,
+    "period": 30,
+    "tags": []
+  },
+  {
+    "secret": "MRYXGY3YE4ZTENJUGE2TMNBT",
+    "issuer": "",
+    "label": "user123@mastodon.technology",
+    "digits": 7,
+    "type": "TOTP",
+    "algorithm": "SHA1",
+    "thumbnail": "Mastodon",
+    "last_used": 0,
+    "used_frequency": 0,
+    "period": 60,
+    "tags": []
+  },
+  {
+    "secret": "OFYTQOJUGMZDINJSGM2TOOJZHE4TSOI=",
+    "issuer": "",
+    "label": "@user123",
+    "digits": 6,
+    "type": "TOTP",
+    "algorithm": "SHA1",
+    "thumbnail": "Twitter",
+    "last_used": 0,
+    "used_frequency": 0,
+    "period": 30,
+    "tags": []
+  }
+]
