@@ -1,6 +1,7 @@
 import ctypes
 import json
 import time
+import signal
 from base64 import b32decode
 import tkinter as tk
 from tkinter import ttk
@@ -24,14 +25,16 @@ class Otp():
         self.type = secret.get("type", "TOTP")
         self.digits = int(secret.get("digits", 6))
         self.algo = secret.get("algoritm", "SHA1")
+        self.t0 = int(secret.get("t0", 0))
         self.period = int(secret.get("period", 30))
         self.secret = b32decode(secret.get("secret", b""))
 
     def next_change_in(self):
-        return self.period - (int(time.time()) % self.period)
+        return self.period - ((int(time.time()) - self.t0) % self.period)
 
     def get_otp(self):
-        return TOTP(self.secret, self.digits, 0, 0,
+        algo = 0  # SHA1
+        return TOTP(self.secret, self.digits, algo, self.t0,
                     self.period, int(time.time()))
 
 
@@ -91,13 +94,12 @@ def main():
     fen.title("TOTP")
     fen.geometry("400x390")
     fen.resizable(False, True)
+    signal.signal(signal.SIGINT, lambda x, y: fen.quit())
 
     tkstyle = ttk.Style(fen)
 
-    tkstyle.layout("OTPFrame.TFrame", [('Frame.border', {'sticky': 'nswe', 'border':1})])
-    print(tkstyle.layout("TLabel"))
-    tkstyle.configure("OTPFrame.TFrame", border=50, bordercolor="red", borderwidth=5)
-    tkstyle.configure("green.Horizontal.TProgressbar", troughcolor ='green', background='white')
+    tkstyle.configure("OTPFrame.TFrame")
+    tkstyle.configure("green.Horizontal.TProgressbar", troughcolor='green', background='white')
     tkstyle.configure("OPT.TLabel", font=('Helvetica', 18), foreground="green")
 
     frame = ScrollableFrame(fen)
