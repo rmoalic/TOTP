@@ -23,7 +23,6 @@ enum TOTP_Algo {
     TOTP_SHA512
 };
 
-void print_digest(BYTE* digest, size_t size);
 uint32_t HOTP(BYTE* secret, size_t secret_lenght, uint digits, uint32_t cycle);
 uint32_t TOTP(BYTE* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, time_t t0, time_t tx, time_t t);
 
