@@ -26,10 +26,11 @@ OTP parameters are stored in ```otp_data.json```. The file follow the same forma
 
 ``` shell
 $ make lib
-$ python gui.py
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
+$ python gui/gui.py gui/otp_data.json
 ```
 
-![gui screenshot](screen.png)
+![gui screenshot](gui/screen.png)
 
 ## References
 
