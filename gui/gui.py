@@ -1,12 +1,13 @@
 import ctypes
 import json
+import sys
 import time
 import signal
 from base64 import b32decode
 import tkinter as tk
 from tkinter import ttk
 
-obj = ctypes.cdll.LoadLibrary('./totp.so')
+obj = ctypes.cdll.LoadLibrary("totp.so")
 
 ex_TOTP = obj.TOTP
 ex_TOTP.restype = ctypes.c_uint32
@@ -81,14 +82,17 @@ class ScrollableFrame(ttk.Frame):
         scrollbar.pack(side="right", fill="y")
 
 
-def load():
-    with open("otp_data.json") as f:
+def load(file_name):
+    with open(file_name) as f:
         secrets = json.load(f)
         return [Otp(s) for s in secrets]
 
 
 def main():
-    otps = load()
+    if len(sys.argv) < 2:
+        print("USAGE: {} file_name".format(sys.argv[0]))
+        exit()
+    otps = load(sys.argv[1])
 
     fen = tk.Tk()
     fen.title("TOTP")
