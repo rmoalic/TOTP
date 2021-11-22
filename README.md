@@ -36,6 +36,22 @@ TOTP(BYTE* secret,         // The shared secret
      time_t t);            // The current time (time(NULL)) (check +- tx on servers to account for time desync)
 ```
 
+# GUI
+
+This project include a simple read only gui to get tokens. The GUI is made with python and tkinter.
+
+OTP parameters are stored in ```otp_data.json```. The file follow the same format as [andOTP](https://github.com/andOTP/andOTP).
+
+> WARNING: ```opt_data.json``` is a plain text file. Not ideal to store OTP secrets
+
+``` shell
+$ make lib
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
+$ python gui/gui.py gui/otp_data.json
+```
+
+![gui screenshot](gui/screen.png)
+
 ## References
 
 * [RFC4226](https://www.ietf.org/rfc/rfc4226.txt) HOTP Algorithm
