@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 typedef unsigned char byte;
+typedef unsigned int uint;
 
 enum TOTP_Algo {
     TOTP_SHA1 = 0, // ONLY SHA1 is implemented !!!
