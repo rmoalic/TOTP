@@ -27,7 +27,7 @@ Copy and include ```totp.c``` in your project and define ```TOTP_IMPLEMENTATION`
 
 ```c
 uint32_t                   // OTP token (to display with leading zeros to get the right ammount of digits)
-TOTP(BYTE* secret,         // The shared secret
+TOTP(byte* secret,         // The shared secret
      size_t secret_lenght, // The size of the secret in bytes
      uint digits,          // The number of digits for the otp token (6, 7 or 8)
      enum TOTP_Algo algo,  // The hashing algorithm used (TOTP_SHA1 only)

@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-typedef unsigned char BYTE;
+typedef unsigned char byte;
 
 enum TOTP_Algo {
     TOTP_SHA1 = 0, // ONLY SHA1 is implemented !!!
@@ -23,8 +23,8 @@ enum TOTP_Algo {
     TOTP_SHA512
 };
 
-uint32_t HOTP(BYTE* secret, size_t secret_lenght, uint digits, uint32_t cycle);
-uint32_t TOTP(BYTE* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, time_t t0, time_t tx, time_t t);
+uint32_t HOTP(byte* secret, size_t secret_lenght, uint digits, uint32_t cycle);
+uint32_t TOTP(byte* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, time_t t0, time_t tx, time_t t);
 
 #ifdef __cplusplus
 };
@@ -52,7 +52,7 @@ static int ipow(int base, int exp)
     return result;
 }
 
-static bool digest_cmp(const BYTE a[SHA_DIGEST_LENGTH], const BYTE b[SHA_DIGEST_LENGTH]) {
+static bool digest_cmp(const byte a[SHA_DIGEST_LENGTH], const byte b[SHA_DIGEST_LENGTH]) {
     for (size_t i = 0; i < SHA_DIGEST_LENGTH; i++) {
         if (a[i] != b[i]) {
             return false;
@@ -61,7 +61,7 @@ static bool digest_cmp(const BYTE a[SHA_DIGEST_LENGTH], const BYTE b[SHA_DIGEST_
     return true;
 }
 
-static void sha1_c(BYTE* value, size_t lenght, BYTE* digest) {
+static void sha1_c(byte* value, size_t lenght, byte* digest) {
     SHA_CTX sha;
 
     SHA1_Init(&sha);
@@ -69,13 +69,13 @@ static void sha1_c(BYTE* value, size_t lenght, BYTE* digest) {
     SHA1_Final(digest, &sha);
 }
 
-static void hmac_sha1(BYTE* key, size_t key_lenght, BYTE* message, size_t message_lenght, BYTE* digest) {
+static void hmac_sha1(byte* key, size_t key_lenght, byte* message, size_t message_lenght, byte* digest) {
     SHA_CTX sha;
-    BYTE digest1[SHA_DIGEST_LENGTH];
-    BYTE* used_key = NULL;
-    BYTE ckey[SHS_DATASIZE] = {0};
-    BYTE ipad[SHS_DATASIZE];
-    BYTE opad[SHS_DATASIZE];
+    byte digest1[SHA_DIGEST_LENGTH];
+    byte* used_key = NULL;
+    byte ckey[SHS_DATASIZE] = {0};
+    byte ipad[SHS_DATASIZE];
+    byte opad[SHS_DATASIZE];
 
     if (key_lenght > SHS_DATASIZE) {
         //printf("shortening key\n");
@@ -106,8 +106,8 @@ static void hmac_sha1(BYTE* key, size_t key_lenght, BYTE* message, size_t messag
 }
 
 
-static void hmac_trucate(const BYTE digest[SHA_DIGEST_LENGTH], BYTE out[4]) {
-    BYTE offset = digest[SHA_DIGEST_LENGTH - 1] & 0x0f;
+static void hmac_trucate(const byte digest[SHA_DIGEST_LENGTH], byte out[4]) {
+    byte offset = digest[SHA_DIGEST_LENGTH - 1] & 0x0f;
 
     for (int i = 0; i < 4; i++) {
         out[i] = digest[offset + i];
@@ -115,21 +115,21 @@ static void hmac_trucate(const BYTE digest[SHA_DIGEST_LENGTH], BYTE out[4]) {
     out[0] &= 0x7f;
 }
 
-void print_digest(BYTE* digest, size_t size) {
+void print_digest(byte* digest, size_t size) {
     for (size_t i =0; i < size; i++) {
         printf("%02x", digest[i]);
     }
     printf("\n");
 }
 
-static void uint32_to_bytes_be(uint32_t val, BYTE out[8]) {
+static void uint32_to_bytes_be(uint32_t val, byte out[8]) {
     for (int i = 7; i >= 0; i--) {
         out[i] = val & 0xff;
         val = val >> 8;
     }
 }
 
-static uint32_t bytes_to_uint32_be(const BYTE in[4]) {
+static uint32_t bytes_to_uint32_be(const byte in[4]) {
     uint32_t ret = (in[0] << 24) |
         (in[1] << 16) |
         (in[2] <<  8) |
@@ -141,12 +141,12 @@ static uint32_t truncate_uint(uint32_t val, int digits) {
     return val % ipow(10, digits);
 }
 
-static uint32_t HOTP_select_algo(BYTE* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, uint32_t cycle) {
+static uint32_t HOTP_select_algo(byte* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, uint32_t cycle) {
     assert(algo == 0 && "SHA1 only");
     assert(digits >=6 && digits < 9);
-    BYTE digest[SHA_DIGEST_LENGTH] = {0};
-    BYTE txt[8] = {0};
-    BYTE trunc[4] = {0};
+    byte digest[SHA_DIGEST_LENGTH] = {0};
+    byte txt[8] = {0};
+    byte trunc[4] = {0};
     uint32_t res;
 
     uint32_to_bytes_be(cycle, txt);
@@ -158,7 +158,7 @@ static uint32_t HOTP_select_algo(BYTE* secret, size_t secret_lenght, uint digits
     return truncate_uint(res, digits);
 }
 
-uint32_t HOTP(BYTE* secret, size_t secret_lenght, uint digits, uint32_t cycle) {
+uint32_t HOTP(byte* secret, size_t secret_lenght, uint digits, uint32_t cycle) {
     return HOTP_select_algo(secret, secret_lenght, digits, TOTP_SHA1, cycle);
 }
 
@@ -166,7 +166,7 @@ static uint32_t calculate_counter_value(time_t t0, time_t tx, time_t t) {
     return (difftime(t, t0) / (double)tx);
 }
 
-uint32_t TOTP(BYTE* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, time_t t0, time_t tx, time_t t) {
+uint32_t TOTP(byte* secret, size_t secret_lenght, uint digits, enum TOTP_Algo algo, time_t t0, time_t tx, time_t t) {
     assert(algo == 0 && "SHA1 only");
     uint32_t counter_value = calculate_counter_value(t0, tx, t);
     return HOTP_select_algo(secret, secret_lenght, digits, algo, counter_value);
@@ -178,9 +178,9 @@ uint32_t TOTP(BYTE* secret, size_t secret_lenght, uint digits, enum TOTP_Algo al
 #define m_assert(test) if(! (test)){printf("%s:%d: %s(): Assertion '%s' failled\n", __FILE__, __LINE__, __func__, m_char(test)); return false;}
 
 bool test_sha1() {
-    BYTE digest[SHA_DIGEST_LENGTH] = {0};
-    BYTE ret[SHA_DIGEST_LENGTH] = {0xa9, 0x4a, 0x8f, 0xe5, 0xcc, 0xb1, 0x9b, 0xa6, 0x1c, 0x4c, 0x08, 0x73, 0xd3, 0x91, 0xe9, 0x87, 0x98, 0x2f, 0xbb, 0xd3};
-    BYTE testval[] = "test";
+    byte digest[SHA_DIGEST_LENGTH] = {0};
+    byte ret[SHA_DIGEST_LENGTH] = {0xa9, 0x4a, 0x8f, 0xe5, 0xcc, 0xb1, 0x9b, 0xa6, 0x1c, 0x4c, 0x08, 0x73, 0xd3, 0x91, 0xe9, 0x87, 0x98, 0x2f, 0xbb, 0xd3};
+    byte testval[] = "test";
 
     sha1_c(testval, 4, digest);
     m_assert(digest_cmp(digest, ret));
@@ -188,7 +188,7 @@ bool test_sha1() {
 }
 
 bool test_bytes_to_uint_be() {
-    BYTE in[] = {0x4c,0x93, 0xcf, 0x18};
+    byte in[] = {0x4c,0x93, 0xcf, 0x18};
     uint32_t out;
 
     out = bytes_to_uint32_be(in);
@@ -219,7 +219,7 @@ bool test_truncate_uint() {
 
 bool test_HOTP() {
     const uint32_t results[] = {755224 ,287082,359152, 969429, 338314, 254676, 287922, 162583, 399871, 520489};
-    BYTE secret[] = "12345678901234567890";
+    byte secret[] = "12345678901234567890";
     int secret_size = sizeof(secret) - 1;
 
     //test rfc4226
@@ -234,7 +234,7 @@ bool test_HOTP() {
 }
 
 bool test_TOTP() {
-    BYTE secret[] = "12345678901234567890";
+    byte secret[] = "12345678901234567890";
     int secret_size = sizeof(secret) - 1;
 
     uint32_t totp;
