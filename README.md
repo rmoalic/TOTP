@@ -1,19 +1,39 @@
-# TOTP implementation
+# TOTP generator implementation
 
 > WARNING: sha1 is the only protocol implemented
 
-Build and run the demo program
+Build and run the demo program.
+It requires openssl for the sha1 implementation (```libssl-dev``` on debian based systems).
 
 ```shell
 $ make # gcc -lcrypto main.c -o main
 $ ./main
 ```
 
-
 Run tests with
 
 ```shell
 $ make test
+```
+
+# Usage
+
+Copy and include ```totp.c``` in your project and define ```TOTP_IMPLEMENTATION``` in your main.
+
+```c
+#define TOTP_IMPLEMENTATION 1
+#include "totp.c"
+```
+
+```c
+uint32_t                   // OTP token (to display with leading zeros to get the right ammount of digits)
+TOTP(BYTE* secret,         // The shared secret
+     size_t secret_lenght, // The size of the secret in bytes
+     uint digits,          // The number of digits for the otp token (6, 7 or 8)
+     enum TOTP_Algo algo,  // The hashing algorithm used (TOTP_SHA1 only)
+     time_t t0,            // The Unix time to start counting time steps (default is 0)
+     time_t tx,            // The time step in seconds
+     time_t t);            // The current time (time(NULL)) (check +- tx on servers to account for time desync)
 ```
 
 ## References
