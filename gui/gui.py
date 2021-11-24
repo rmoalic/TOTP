@@ -55,19 +55,20 @@ class OtpFrame(ttk.Frame):
         self.remaining_time_bar.grid(row=2, column=0, columnspan=2, pady=0)
 
         self.remaining_time_bar["length"] = 370
-
-        next_change_in = self.otp.next_change_in()
-        self.remaining_time_bar.step(self.otp.period - next_change_in - 1)
-        self.remaining_time_bar.start(1000)
         self.update()
 
     def update(self):
+        next_change_in = self.otp.next_change_in()
+        self.remaining_time_bar.stop()
+        self.remaining_time_bar.step(self.otp.period - next_change_in - 1)
+        self.remaining_time_bar.start(1000)
+
         opt = self.otp.get_otp()
         leading_zeros_fix = self.otp.digits + (self.otp.digits // 3) - 1
         opt_str = format(opt, "0{},d".format(leading_zeros_fix)).replace(",", " ")
         self.otp_code.configure(text=opt_str)
-        change_in = self.otp.next_change_in() * 1000
-        self.after(change_in, self.update)
+
+        self.after(next_change_in * 1000, self.update)
 
 
 class ScrollableFrame(ttk.Frame):
