@@ -34,6 +34,8 @@ uint32_t TOTP(byte* secret, size_t secret_lenght, uint digits, enum TOTP_Algo al
 #endif
 
 #ifdef TOTP_IMPLEMENTATION
+#ifndef TOTP_IMPLEMENTATION_DEFINED
+#define TOTP_IMPLEMENTATION_DEFINED 1
 // TODO: find a source for the SHA1 block size(bytes) in openssl
 #define SHS_DATASIZE 64
 
@@ -283,5 +285,6 @@ int main() {
     test();
     return EXIT_SUCCESS;
 }
+#endif
 #endif
 #endif
