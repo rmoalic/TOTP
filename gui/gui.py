@@ -1,4 +1,3 @@
-import ctypes
 import json
 import sys
 import time
@@ -6,11 +5,13 @@ import signal
 from base64 import b32decode
 import tkinter as tk
 from tkinter import ttk
+from ctypes import cdll, c_uint32, c_char_p, c_size_t, c_uint, c_ulonglong
 
-obj = ctypes.cdll.LoadLibrary("totp.so")
+obj = cdll.LoadLibrary("totp.so")
 
 ex_TOTP = obj.TOTP
-ex_TOTP.restype = ctypes.c_uint32
+ex_TOTP.restype = c_uint32
+ex_TOTP.argtypes = [c_char_p, c_size_t, c_uint, c_uint, c_ulonglong, c_ulonglong, c_ulonglong]
 
 
 def TOTP(secret: bytes, digits: int, algo: int,
