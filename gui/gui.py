@@ -44,10 +44,12 @@ class OtpFrame(ttk.Frame):
     def __init__(self, container, otp, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
         self.otp = otp
+        self.otp_str = ""
         self["style"] = "OTPFrame.TFrame"
         self.thumbnail = ttk.Label(self, text=otp.thumbnail)
         self.label = ttk.Label(self, text=otp.label, wraplength=280)
-        self.otp_code = ttk.Label(self, text="", style="OPT.TLabel")
+        self.otp_code = ttk.Label(self, text=self.otp_str, style="OPT.TLabel")
+        self.otp_code.bind("<Button-1>", lambda e:self.to_clipboard())
         self.remaining_time_bar = ttk.Progressbar(self, orient=tk.HORIZONTAL, mode="determinate", maximum=self.otp.period, style="green.Horizontal.TProgressbar")
 
         self.thumbnail.grid(row=0, column=0, rowspan=2, sticky=tk.W)
@@ -66,10 +68,17 @@ class OtpFrame(ttk.Frame):
 
         opt = self.otp.get_otp()
         leading_zeros_fix = self.otp.digits + (self.otp.digits // 3) - 1
-        opt_str = format(opt, "0{},d".format(leading_zeros_fix)).replace(",", " ")
-        self.otp_code.configure(text=opt_str)
+        self.opt_str = format(opt, "0{},d".format(leading_zeros_fix)).replace(",", " ")
+        self.otp_code.configure(text=self.opt_str)
 
         self.after(next_change_in * 1000, self.update)
+
+    def to_clipboard(self):
+        self.clipboard_clear()
+        txt = self.opt_str.replace(" ", "")
+        self.clipboard_append(txt)
+        self.otp_code.configure(text="Copied !")
+        self.after(1000, lambda: self.otp_code.configure(text=self.opt_str))
 
 
 class ScrollableFrame(ttk.Frame):
