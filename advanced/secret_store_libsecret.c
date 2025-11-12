@@ -1,0 +1,90 @@
+#include <assert.h>
+#include <stdio.h>
+#include "secret_store.h"
+#include "libsecret/secret.h"
+
+const SecretSchema *get_schema(void) {
+    static const SecretSchema the_schema = {
+      "fr.polms.TOTP", SECRET_SCHEMA_NONE,
+        {
+          {  "soft", SECRET_SCHEMA_ATTRIBUTE_STRING },
+          {  "key", SECRET_SCHEMA_ATTRIBUTE_STRING },
+          {  "NULL", 0 },
+        }
+    };
+    return &the_schema;
+}
+
+void  init(void) {
+
+}
+
+bool  is_locked(void) {
+  return false;
+}
+
+int   unlock(void* pass) {
+  return 0;
+}
+
+bool  get_secret(char* key, char** secret) {
+  GError* error = NULL;
+  *secret = secret_password_lookup_sync(get_schema(), NULL, &error, "soft", "totp", "key", key, NULL);
+  
+  if (error != NULL) {
+    printf("Error: %d -- %s\n", error->code, error->message);
+    g_error_free (error);
+    return false;
+  }
+  if (*secret == NULL) {
+    return false;
+  }
+  return true;
+}
+
+bool  set_secret(char* key, char* secret) {
+  GError* error = NULL;
+  secret_password_store_sync(get_schema(), SECRET_COLLECTION_DEFAULT, "TOTP.polms", secret, NULL, &error, "soft", "totp", "key", key, NULL);
+
+  if (error != NULL) {
+    printf("Error: %d -- %s\n", error->code, error->message);
+    g_error_free (error);
+    return false;
+  }
+
+  return true;
+}
+
+bool  delete_secret(char* key) {
+  GError* error = NULL;
+  secret_password_clear_sync(get_schema(), NULL, &error, "soft", "totp", "key", key, NULL);
+
+  if (error != NULL) {
+    printf("Error: %d -- %s\n", error->code, error->message);
+    g_error_free (error);
+    return false;
+  }
+
+  return true;
+}
+
+SecretStore secret_store = {
+  .name = "libsecret",
+  .type = SECRET_STORE_SYSTEM,
+  .locktype = SECRET_STORE_LOCK_SYSTEM,
+  .init = init,
+  .is_locked = is_locked,
+  .unlock = unlock,
+  .get_secret = get_secret,
+  .set_secret = set_secret,
+  .delete_secret = delete_secret,
+};
+
+bool plug_load(void) {
+  register_secret_store(secret_store);
+  return true;
+}
+
+void plug_unload(void) {
+
+}
